@@ -34,13 +34,28 @@ if [ $# -eq 0 ]; then
 fi
 
 # --- EXECUTION ---
-# Add the concise instruction and the user prompt to history
+# Create temp context with system prompt
 echo "$SYSTEM_PROMPT" > "$HIST_FILE.tmp"
+
+# Append existing history if it exists
 if [ -f "$HIST_FILE" ]; then
     cat "$HIST_FILE" >> "$HIST_FILE.tmp"
 fi
+
+# Add current user prompt
 echo "User: $*" >> "$HIST_FILE.tmp"
 
-# Run Ollama and update history
-ollama run "$MODEL" "$(cat "$HIST_FILE.tmp")"
-mv "$HIST_FILE.tmp" "$HIST_FILE"
+# Run Ollama and capture response
+RESPONSE=$(ollama run "$MODEL" "$(cat "$HIST_FILE.tmp")")
+
+# Output response to terminal
+echo "$RESPONSE"
+
+# Update permanent history with the exchange
+{
+    echo "User: $*"
+    echo "Assistant: $RESPONSE"
+} >> "$HIST_FILE"
+
+# Clean up
+rm -f "$HIST_FILE.tmp"
