@@ -1,40 +1,36 @@
 # hey Command
 
-A simple tool to run AI models in your terminal.
+A simple tool to run AI models in your terminal with built-in history.
 
 ## Installation
 
-1. Install Ollama first: https://ollama.com/download
-2. Download the script:
-```bash
-wget https://raw.githubusercontent.com/yourusername/hey-command/main/hey.sh
-```
+1. **Install Ollama**: https://ollama.com/download
+2. **Setup**: Run the script once to install it globally:
+   bash hey.sh
 
-3. Make it executable and move to PATH:
-```bash
-chmod +x hey.sh
-sudo mv hey.sh /usr/local/bin/hey
-```
+## Features
+
+- **Auto-Installation**: Moves itself to /usr/local/bin.
+- **Model Selection**: Allows switching LLMs.
+- **Contextual History**: Remembers your conversation until reboot or manual clear.
 
 ## Usage
 
 ### Basic usage:
-```bash
-hey 'list ghost pokemon from generation 1'
-```
+hey 'your question here'
 
 ### Change default model:
-```bash
-hey -m mistral
-```
+hey -m model-name
+
+### Clear conversation history:
+hey -c
 
 ## Examples
-```bash
 hey 'list ghost pokemon from generation 1'
-hey -m mistral
+hey -m llama3
 hey 'explain quantum computing'
-```
 
 ## Notes
-- Requirements: Ollama
-- Default model: qwen3-coder:latest
+- **Requirements**: Ollama
+- **Default model**: qwen3-coder:latest
+- **History**: Stored in /tmp (cleared on system reboot).

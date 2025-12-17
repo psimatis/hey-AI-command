@@ -1,42 +1,46 @@
 #!/bin/bash
-# hey.sh
 
-# Check if ollama is installed
-if ! command -v ollama &> /dev/null; then
-    echo "Error: ollama is not installed. Please install it first."
-    exit 1
-fi
-
-# Check if -m flag is used to change model
-if [ "$1" = "-m" ]; then
-    MODEL="$2"
-    # Save the model preference to a file
-    echo "$MODEL" > ~/.hey_model
-    echo "Model changed to: $MODEL"
+# --- AUTO-INSTALLER ---
+if [[ "$0" != "/usr/local/bin/hey" ]]; then
+    chmod +x "$0"
+    sudo cp "$0" /usr/local/bin/hey
+    sudo chmod 755 /usr/local/bin/hey
+    echo "Installed successfully to /usr/local/bin/hey"
     exit 0
 fi
 
-# Get the model from config file or use default
-if [ -f ~/.hey_model ]; then
-    MODEL=$(cat ~/.hey_model)
-else
-    MODEL="qwen3-coder:latest"
+# --- CONFIG & HISTORY ---
+MODEL_CONF="$HOME/.hey_model"
+HIST_FILE="/tmp/hey_history_conversation"
+MODEL=$( [ -f "$MODEL_CONF" ] && cat "$MODEL_CONF" || echo "qwen3-coder:latest" )
+SYSTEM_PROMPT="Instruction: Be concise and direct. No fluff."
+
+# --- FLAGS ---
+if [ "$1" = "-m" ]; then
+    echo "$2" > "$MODEL_CONF"
+    echo "Model changed to: $2"
+    exit 0
 fi
 
-# Check if arguments were provided
+if [ "$1" = "-c" ]; then
+    rm -f "$HIST_FILE"
+    echo "History cleared."
+    exit 0
+fi
+
 if [ $# -eq 0 ]; then
-    echo "Usage: hey [OPTIONS] <prompt>"
-    echo "Options:"
-    echo "  -m MODEL    Change model permanently (default: qwen3-coder:latest)"
-    echo ""
-    echo "Examples:"
-    echo "  hey 'list all the ghost pokemon of generation 1'"
-    echo "  hey -m mistral"
+    echo "Usage: hey 'message'"
     exit 1
 fi
 
-# Combine all arguments into a single prompt
-prompt="$*"
+# --- EXECUTION ---
+# Add the concise instruction and the user prompt to history
+echo "$SYSTEM_PROMPT" > "$HIST_FILE.tmp"
+if [ -f "$HIST_FILE" ]; then
+    cat "$HIST_FILE" >> "$HIST_FILE.tmp"
+fi
+echo "User: $*" >> "$HIST_FILE.tmp"
 
-# Run ollama with the specified model and prompt
-ollama run "$MODEL" "$prompt"
+# Run Ollama and update history
+ollama run "$MODEL" "$(cat "$HIST_FILE.tmp")"
+mv "$HIST_FILE.tmp" "$HIST_FILE"
