@@ -1,6 +1,6 @@
 # hey Command
 
-A simple tool to run AI models on your terminal.
+A simple tool to run AI models in your terminal.
 
 ## Installation
 
@@ -38,4 +38,3 @@ hey 'explain quantum computing'
 ## Notes
 - Requirements: Ollama
 - Default model: qwen3-coder:latest
-```
